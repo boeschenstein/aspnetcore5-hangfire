@@ -2,7 +2,11 @@
 
 ## Create new Webapi Project
 
-`dotnet new webapi -o MyHFTest`
+```
+dotnet new webapi -o MyHFTest
+
+dotnet new gitignore
+```
 
 Toolbar: change from IISExpress to MyHFTest.
 
@@ -109,4 +113,30 @@ Hello recurring job from Hangfire! 05.12.2020 14:59:14
 ```
 The reason for this unexpected behavior: the call gets serialized and then executed: details: https://docs.hangfire.io/en/latest/background-methods/
 
+To fix this, you need to pass dependency: https://docs.hangfire.io/en/latest/background-methods/passing-dependencies.html
 
+```cs
+RecurringJob.AddOrUpdate<CustomHelloWorld>(x => x.LogThis("Hello recurring job from Hangfire (fixed by dependency)!"), "0/15 * * * * *");
+```
+
+Add class:
+
+```cs
+public class CustomHelloWorld
+{
+    public void LogThis(string info)
+    {
+        Console.WriteLine(info + $" {DateTime.Now}");
+    }
+}
+```
+ 
+ Output:
+ 
+ ```
+Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:15
+Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:30
+Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:45
+Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:45
+Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:38:00
+```
