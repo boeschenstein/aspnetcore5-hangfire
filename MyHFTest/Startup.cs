@@ -65,6 +65,7 @@ namespace MyHFTest
             app.UseHangfireDashboard();
             backgroundJobs.Enqueue(() => Console.WriteLine("Hello world from Hangfire!"));
             RecurringJob.AddOrUpdate(() => Console.WriteLine($"Hello recurring job from Hangfire! {DateTime.Now}"), "0/15 * * * * *"); // cron expression: every 15 seconds
+            RecurringJob.AddOrUpdate<CustomHelloWorld>(x => x.LogThis("Hello recurring job from Hangfire (fixed by dependency)!"), "0/15 * * * * *");
 
             app.UseEndpoints(endpoints =>
             {
