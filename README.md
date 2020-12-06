@@ -133,10 +133,92 @@ public class CustomHelloWorld
  
  Output:
  
- ```
+```
 Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:15
 Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:30
 Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:45
 Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:45
 Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:38:00
 ```
+
+## Run Hangfire in Console App
+
+`dotnet new console -o HFConsole`
+
+Add this to the Main:
+
+```cs
+private static void Main(string[] args)
+{
+    GlobalConfiguration.Configuration.UseSqlServerStorage("Server=(localdb)\\mssqllocaldb;Database=HangfireTest;Integrated Security=SSPI;");
+    using (var server = new BackgroundJobServer())
+    {
+        Console.WriteLine("Hangfire Server started. Press any key to exit...");
+        Console.ReadKey();
+    }
+}
+```
+
+## Run Hangfire in Windows Service
+
+https://docs.hangfire.io/en/latest/background-processing/processing-jobs-in-windows-service.html
+
+Add a Windows Service. Details: https://github.com/boeschenstein/core3-windows-service/blob/main/README.md
+
+`dotnet new worker -o MyHFService`
+
+Add Hangfire to Service:
+
+```
+Install-Package Hangfire.Core
+Install-Package Hangfire.SqlServer
+```
+
+Copy Connection string to appsettings.json of service.
+
+Disable Hangfire in WebApi:
+
+```cs
+// Add the processing server as IHostedService
+// services.AddHangfireServer();
+```
+
+Use Hangfire in Service:
+
+```cs
+public class HFWorker : BackgroundService
+{
+    private BackgroundJobServer _server;
+
+    public HFWorker()
+    {
+        GlobalConfiguration.Configuration.UseSqlServerStorage("HangfireConnection");
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            await Task.Delay(1000, stoppingToken);
+        }
+    }
+
+    public override Task StartAsync(CancellationToken cancellationToken)
+    {
+        _server = new BackgroundJobServer();
+        return base.StartAsync(cancellationToken);
+    }
+
+    public override void Dispose()
+    {
+        _server.Dispose();
+        base.Dispose();
+    }
+}
+```
+
+TODO: SERVER CANNOT BE SEEN BY HANGFIRE !! WHY ??
+
+## Set or Disable Retry on error
+
+GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
