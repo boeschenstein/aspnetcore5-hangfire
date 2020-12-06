@@ -133,12 +133,30 @@ public class CustomHelloWorld
  
  Output:
  
- ```
+```
 Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:15
 Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:30
 Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:45
 Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:45
 Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:38:00
+```
+
+## Run Hangfire in Console App
+
+`dotnet new console -o HFConsole`
+
+Add this to the Main:
+
+```cs
+private static void Main(string[] args)
+{
+    GlobalConfiguration.Configuration.UseSqlServerStorage("Server=(localdb)\\mssqllocaldb;Database=HangfireTest;Integrated Security=SSPI;");
+    using (var server = new BackgroundJobServer())
+    {
+        Console.WriteLine("Hangfire Server started. Press any key to exit...");
+        Console.ReadKey();
+    }
+}
 ```
 
 ## Run Hangfire in Windows Service
@@ -155,6 +173,8 @@ Add Hangfire to Service:
 Install-Package Hangfire.Core
 Install-Package Hangfire.SqlServer
 ```
+
+Copy Connection string to appsettings.json of service.
 
 Disable Hangfire in WebApi:
 
@@ -196,3 +216,9 @@ public class HFWorker : BackgroundService
     }
 }
 ```
+
+TODO: SERVER CANNOT BE SEEN BY HANGFIRE !! WHY ??
+
+## Set or Disable Retry on error
+
+GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
