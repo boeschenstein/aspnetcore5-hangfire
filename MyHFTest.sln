@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyHFTest", "MyHFTest\MyHFTest.csproj", "{64CF7D2D-74C3-4B92-B2A2-867C90696F6E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyHFService", "MyHFService\MyHFService.csproj", "{FEACD5E9-D118-4208-A1E7-93CDCA2BD7CB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MyHFConsole", "MyHFConsole\MyHFConsole.csproj", "{953CF064-76D7-483C-BDE9-618ED968543B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{64CF7D2D-74C3-4B92-B2A2-867C90696F6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64CF7D2D-74C3-4B92-B2A2-867C90696F6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64CF7D2D-74C3-4B92-B2A2-867C90696F6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEACD5E9-D118-4208-A1E7-93CDCA2BD7CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEACD5E9-D118-4208-A1E7-93CDCA2BD7CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEACD5E9-D118-4208-A1E7-93CDCA2BD7CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEACD5E9-D118-4208-A1E7-93CDCA2BD7CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{953CF064-76D7-483C-BDE9-618ED968543B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{953CF064-76D7-483C-BDE9-618ED968543B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{953CF064-76D7-483C-BDE9-618ED968543B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{953CF064-76D7-483C-BDE9-618ED968543B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
