@@ -217,8 +217,12 @@ public class HFWorker : BackgroundService
 }
 ```
 
-TODO: SERVER CANNOT BE SEEN BY HANGFIRE !! WHY ??
+> TODO: Hangfire server works in debug, but COMPILED SERVER RUN BY SC CANNOT BE SEEN BY HANGFIRE DASHBOARD !! WHY !? ACL ?? FIREWALL ??
 
 ## Set or Disable Retry on error
 
 GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
+
+## Information
+
+- to debug, set both projects as startup
