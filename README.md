@@ -140,3 +140,59 @@ Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:45
 Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:37:45
 Hello recurring job from Hangfire (fixed by dependency)! 05.12.2020 15:38:00
 ```
+
+## Run Hangfire in Windows Service
+
+https://docs.hangfire.io/en/latest/background-processing/processing-jobs-in-windows-service.html
+
+Add a Windows Service. Details: https://github.com/boeschenstein/core3-windows-service/blob/main/README.md
+
+`dotnet new worker -o MyHFService`
+
+Add Hangfire to Service:
+
+```
+Install-Package Hangfire.Core
+Install-Package Hangfire.SqlServer
+```
+
+Disable Hangfire in WebApi:
+
+```cs
+// Add the processing server as IHostedService
+// services.AddHangfireServer();
+```
+
+Use Hangfire in Service:
+
+```cs
+public class HFWorker : BackgroundService
+{
+    private BackgroundJobServer _server;
+
+    public HFWorker()
+    {
+        GlobalConfiguration.Configuration.UseSqlServerStorage("HangfireConnection");
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            await Task.Delay(1000, stoppingToken);
+        }
+    }
+
+    public override Task StartAsync(CancellationToken cancellationToken)
+    {
+        _server = new BackgroundJobServer();
+        return base.StartAsync(cancellationToken);
+    }
+
+    public override void Dispose()
+    {
+        _server.Dispose();
+        base.Dispose();
+    }
+}
+```
