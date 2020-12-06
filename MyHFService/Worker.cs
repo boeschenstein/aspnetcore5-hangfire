@@ -24,7 +24,6 @@ namespace MyHFService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogWarning("hello3");
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogWarning("Worker running at: {time}", DateTimeOffset.Now);
