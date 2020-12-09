@@ -223,6 +223,16 @@ public class HFWorker : BackgroundService
 
 GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 0 });
 
+Source: https://www.faciletechnolab.com/blog/2018/8/30/5-helpful-tips-to-use-hangfire-for-background-scheduling-in-better-way
+
+## Timezones
+
+When you are writing Hangfire jobs and schedule to run hourly or daily or any other recurrence, timezone matters the most in many cases. By default Hangfire uses UTC time. That means when you do not specify timezone information, its considered as UTC. You can configure jobs to run at a time and also pass on TimezoneInfo to it so that you can configure timezone specific time. Here is an example:
+
+`RecurringJob.AddOrUpdate(() => Console.Write(), "15 18 * * *", TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));`
+
+Source: https://www.faciletechnolab.com/blog/2018/8/30/5-helpful-tips-to-use-hangfire-for-background-scheduling-in-better-way
+
 ## Information
 
 - to debug, set both projects as startup
