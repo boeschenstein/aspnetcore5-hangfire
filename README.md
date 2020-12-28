@@ -217,6 +217,8 @@ public class HFWorker : BackgroundService
 }
 ```
 
+- to debug, set both projects as startup
+
 > TODO: Hangfire server works in debug, but COMPILED SERVER RUN BY SC CANNOT BE SEEN BY HANGFIRE DASHBOARD !! WHY !? ACL ?? FIREWALL ??
 
 ## Set or Disable Retry on error
@@ -233,7 +235,7 @@ or set the attribute to the job execution:
 [AutomaticRetry(Attempts = 0, OnAttemptsExceeded = AttemptsExceededAction.Delete)] // or set in global fiters
 public async Task SendCommand(IRequest request)
 {
-    await this._mediator.Send(request);
+    await ...;
 }
 ```
 
@@ -262,38 +264,31 @@ Hangfire will always try to restart your job in case of an error or outage. You 
 
         public void OnCreating(CreatingContext filterContext)
         {
-            using (var loggerFactory = _services.BuildServiceProvider().GetService<ILoggerFactory>())
+            // if (context.Parameters.TryGetValue("RecurringJobId", out var recurringJobId) && context.InitialState?.Reason == "Triggered by recurring job scheduler")
+            if (filterContext.Parameters.TryGetValue("RecurringJobId", out var recurringJobId))
             {
-                var logger = loggerFactory.CreateLogger<NoMissedRunsAttribute>();
+                // the job being created looks like a recurring job instance,
+                // and triggered by a scheduler (i.e. not manually) at that.
 
-                logger.LogDebug($"Hangfire Filter OnCreating!");
+                var recurringJob = filterContext.Connection.GetAllEntriesFromHash($"recurring-job:{recurringJobId}");
+                logger.LogDebug($"Hangfire Filter OnCreating! recurringJobId={recurringJobId}");
 
-                // if (context.Parameters.TryGetValue("RecurringJobId", out var recurringJobId) && context.InitialState?.Reason == "Triggered by recurring job scheduler")
-                if (filterContext.Parameters.TryGetValue("RecurringJobId", out var recurringJobId))
+                if (recurringJob != null && recurringJob.TryGetValue("NextExecution", out var nextExecution))
                 {
-                    // the job being created looks like a recurring job instance,
-                    // and triggered by a scheduler (i.e. not manually) at that.
+                    // the next execution time of a recurring job is updated AFTER the job instance creation,
+                    // so at the moment it still contains the scheduled execution time from the previous run.
 
-                    var recurringJob = filterContext.Connection.GetAllEntriesFromHash($"recurring-job:{recurringJobId}");
-                    logger.LogDebug($"Hangfire Filter OnCreating! recurringJobId={recurringJobId}");
+                    var scheduledTime = JobHelper.DeserializeDateTime(nextExecution);
 
-                    if (recurringJob != null && recurringJob.TryGetValue("NextExecution", out var nextExecution))
+                    if (DateTime.UtcNow > scheduledTime + MaxDelay)
                     {
-                        // the next execution time of a recurring job is updated AFTER the job instance creation,
-                        // so at the moment it still contains the scheduled execution time from the previous run.
-
-                        var scheduledTime = JobHelper.DeserializeDateTime(nextExecution);
-
-                        if (DateTime.UtcNow > scheduledTime + MaxDelay)
-                        {
-                            // the job is created way later than expected
-                            filterContext.Canceled = true;
-                            logger.LogWarning($"{nameof(NoMissedRunsAttribute)}: Hangfire Execution canceled because it run too late! recurringJobId={recurringJobId}. plannedUtc={DateTime.UtcNow}, scheduledTime={scheduledTime}, maxDelay={MaxDelay}");
-                        }
-                        else
-                        {
-                            logger.LogDebug($"{nameof(NoMissedRunsAttribute)}: Hangfire Execution not canceled. recurringJobId={recurringJobId}. plannedUtc={DateTime.UtcNow}, scheduledTime={scheduledTime}, maxDelay={MaxDelay}");
-                        }
+                        // the job is created way later than expected
+                        filterContext.Canceled = true;
+                        logger.LogWarning($"{nameof(NoMissedRunsAttribute)}: Hangfire Execution canceled because it run too late! recurringJobId={recurringJobId}. plannedUtc={DateTime.UtcNow}, scheduledTime={scheduledTime}, maxDelay={MaxDelay}");
+                    }
+                    else
+                    {
+                        logger.LogDebug($"{nameof(NoMissedRunsAttribute)}: Hangfire Execution not canceled. recurringJobId={recurringJobId}. plannedUtc={DateTime.UtcNow}, scheduledTime={scheduledTime}, maxDelay={MaxDelay}");
                     }
                 }
             }
@@ -301,7 +296,6 @@ Hangfire will always try to restart your job in case of an error or outage. You 
 
         public void OnCreated(CreatedContext context)
         {
-            // logger.LogDebug($"Hangfire Filter OnCreating!");
         }
     }
 
@@ -319,7 +313,7 @@ Or add the attribute to the job execution
 [NoMissedRuns()] already set in global fiters
 public async Task SendCommand(IRequest request)
 {
-    await this._mediator.Send(request);
+    await ...;
 }
 ```
 
@@ -331,7 +325,7 @@ Set JobDisplayNameAttribute to use the ToString() method of the request:
 [JobDisplayName("{0}, {1}")]
 public async Task SendCommand(string name, IRequest request) // arguments get numbered 0, 1, ...
 {
-    await this._mediator.Send(request);
+    await ...;
 }
 ```
 
@@ -344,5 +338,3 @@ When you are writing Hangfire jobs and schedule to run hourly or daily or any ot
 Source: https://www.faciletechnolab.com/blog/2018/8/30/5-helpful-tips-to-use-hangfire-for-background-scheduling-in-better-way
 
 ## Information
-
-- to debug, set both projects as startup
