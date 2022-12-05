@@ -338,3 +338,6 @@ When you are writing Hangfire jobs and schedule to run hourly or daily or any ot
 Source: https://www.faciletechnolab.com/blog/2018/8/30/5-helpful-tips-to-use-hangfire-for-background-scheduling-in-better-way
 
 ## Information
+
+- ASP.NET Core 7 example: https://learn.microsoft.com/en-us/aspnet/core/host-and-deploy/windows-service?view=aspnetcore-7.0&tabs=visual-studio
+
